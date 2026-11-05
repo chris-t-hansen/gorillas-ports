@@ -18,7 +18,7 @@ vendor/
 bower_components/
 
 # Python
-pycache/
+__pycache__/
 *.py[cod]
 *$py.class
 *.pyo
@@ -39,10 +39,17 @@ venv.bak/
 .Python
 
 # Virtual environment files
-.env .env. .env .env.
+.env
 
 # IDE / Editor folders
-.idea/ .vscode/ *.sublime-workspace *.sublime-project *.code-workspace *.swp *~ *.bak
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+*.swp
+*~
+*.bak
 
 # Compiled source
 *.class
@@ -66,14 +73,14 @@ venv.bak/
 *.jpeg
 *.gif
 *.svg
+# ...but keep golden-file test images (SKILL.md Step 7)
+!tests/**/*.png
 
 # Misc
 *.tmp
 *.temp
 *.seed
 *.pid
-*.seed
-*.seed
 
 # Environment files
 .env
@@ -97,9 +104,9 @@ coverage/
 # Test results
 junit.xml
 test-results/
+*.xml
 
 # Miscellaneous
-.DS_Store
 .AppleDouble
 ._
 .Spotlight-V100
