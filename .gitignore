@@ -1,0 +1,109 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# Logs
+.log
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency directories
+node_modules/
+vendor/
+bower_components/
+
+# Python
+pycache/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.manifest
+*.spec
+*.pyc
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.Python
+
+# Virtual environment files
+.env .env. .env .env.
+
+# IDE / Editor folders
+.idea/ .vscode/ *.sublime-workspace *.sublime-project *.code-workspace *.swp *~ *.bak
+
+# Compiled source
+*.class
+*.o
+*.so
+*.dll
+*.exe
+*.out
+*.obj
+
+# Archives
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Images generated during docs
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Misc
+*.tmp
+*.temp
+*.seed
+*.pid
+*.seed
+*.seed
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Secrets
+*.key
+*.pem
+*.crt
+
+# Coverage reports
+coverage/
+*.cover
+*.coverage
+*.lcov
+
+# Test results
+junit.xml
+test-results/
+
+# Miscellaneous
+.DS_Store
+.AppleDouble
+._
+.Spotlight-V100
+.Trashes
+._/**/*
+
+# End of .gitignore
