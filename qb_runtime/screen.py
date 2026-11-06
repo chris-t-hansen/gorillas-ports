@@ -349,11 +349,7 @@ def screen(mode: int) -> None:
 
     # Create/resize window.
     display_w, display_h = _compute_display_size(_fb_w, _fb_h)
-    print(f"DEBUG screen({mode}): fb={_fb_w}x{_fb_h}, display={display_w}x{display_h}, scale={_scale}")
     _create_window(display_w, display_h, force_recreate=True)
-    if _window:
-        actual_w, actual_h = _window.get_size()
-        print(f"DEBUG screen({mode}): actual window={actual_w}x{actual_h}, render={_render_surf.get_size()}")
 
 
 # ---------------------------------------------------------------------------
