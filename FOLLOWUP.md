@@ -15,7 +15,12 @@ _Last updated: end of session on SKILL Step 2 (qb_runtime/ package). Read this f
 | 7 | Verification / `tests/` | ❌ not started |
 | 8 | `game.py`, `README.md`, `QUIRKS.md` | ❌ not started |
 
-Repo state: `main` pushed to `origin` (`github.com/chris-t-hansen/gorillas-ports`), working tree clean. `.gitignore` was fixed (`pycache/` → `__pycache__/`, one pattern per line, `!tests/**/*.png` exception for future golden files). `.venv/` exists with `pygame==2.6.1` and `numpy==2.5.4` installed.
+Repo state: `main` at commit `9e3d3ba`, working tree clean. `.gitignore` was fixed (`pycache/` → `__pycache__/`, one pattern per line, `!tests/**/*.png` exception for future golden files). `.venv/` exists with `pygame==2.6.1` and `numpy==2.5.4` installed.
+
+**Important:** Run tests with `.venv/bin/python` (system Python lacks pygame/numpy):
+```bash
+SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m unittest discover -v tests/
+```
 
 **Commit message convention (user request):** credit `qwen3.8-max` in every commit message, e.g. trailer `Written by qwen3.8-max` (matches style of older `d2f2353` commit).
 
@@ -92,19 +97,15 @@ Gorilla sprites are NOT in DATA — captured at runtime via `GET` in DrawGorilla
 
 ## Exact resume point
 
-**Task: write the `qb_runtime/` package (SKILL Step 2).** Nothing has been coded yet — the session ended right after the research above (last action was reading banana DATA lines L125-141 and DrawBan L370-400 from `gorilla.bas`).
+**Task: SKILL Step 2 complete.** All `qb_runtime/` modules written and tested. Commit `9e3d3ba`.
 
-Suggested order of work tomorrow:
+**Next session: SKILL Step 3 (pixel fidelity).** Key tasks:
 
-1. `qb_runtime/qbmath.py` + `format.py` (pure logic, easy to unit test) → `tests/` with `unittest` (stdlib; pytest not yet in requirements — decide whether to add it).
-2. `screen.py` (framebuffer, palettes incl. EGA-64 decode above, window/scaling, pump/present).
-3. `font` handling + `text.py` (grid, print/locate/color/scroll/VIEW PRINT, cursor, blink).
-4. `graphics.py` (pset/line/circle/paint/point/get/put).
-5. `keyboard.py`, `timing.py`, `rng.py`, `sound.py`.
-6. Headless smoke test (`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy`) exercising SCREEN 0/9/1, PRINT, LINE, CIRCLE, palette remap, PLAY parsing.
-7. Commit with `Written by qwen3.8-max` trailer; start `QUIRKS.md`/`TIMING_NOTES.md` skeletons as decisions get recorded.
-
-Then Step 3: sprite DATA decoding (finish layout analysis from finding #4), pixel-fidelity passes, golden-file tests.
+1. **Banana sprite DATA decoding** — the EGA planar layout still needs empirical verification (dump bits and match expected banana shape). Header word order may need adjustment. The `decode_put_data()` function exists but hasn't been verified against actual banana sprites yet.
+2. **Pixel-fidelity passes** — verify LINE, CIRCLE, PAINT output matches QBASIC exactly. Compare framebuffer dumps against reference screenshots.
+3. **Golden-file tests** — save framebuffer PNGs for key screens (intro, game field, explosions, gorillas) and compare against expected output.
+4. **Font rendering verification** — confirm glyph blits produce pixel-identical output to QBASIC's text rendering.
+5. **Palette change immediacy** — verify that `PALETTE n, value` changes affect already-drawn pixels (the indexed framebuffer design supports this; needs testing).
 
 ## Open questions for the user (batch when convenient)
 
