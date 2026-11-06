@@ -299,8 +299,8 @@ class TestPaintFidelity(unittest.TestCase):
 
     def test_fill_box(self):
         scr.cls()
-        gfx.line(10, 10, 50, 40, 15, b_flag=True)
-        gfx.paint(25, 25, 3)
+        gfx.line(10, 10, 50, 40, 3, b_flag=True)  # border is 3
+        gfx.paint(25, 25, 3)  # fill with 3, border defaults to 3
         # Interior filled.
         self.assertEqual(scr.point(25, 25), 3)
         self.assertEqual(scr.point(11, 11), 3)
@@ -309,23 +309,34 @@ class TestPaintFidelity(unittest.TestCase):
         self.assertEqual(scr.point(5, 5), 0)
         self.assertEqual(scr.point(55, 45), 0)
         # Border intact.
-        self.assertEqual(scr.point(10, 10), 15)
-        self.assertEqual(scr.point(50, 40), 15)
+        self.assertEqual(scr.point(10, 10), 3)
+        self.assertEqual(scr.point(50, 40), 3)
 
     def test_fill_circle(self):
         scr.cls()
-        gfx.circle(100, 100, 20, 15)
-        gfx.paint(100, 100, 5)
+        gfx.circle(100, 100, 20, 5)  # border is 5
+        gfx.paint(100, 100, 5)  # fill with 5, border defaults to 5
         self.assertEqual(scr.point(100, 100), 5)
         self.assertEqual(scr.point(100, 85), 5)
         # Exterior untouched.
         self.assertEqual(scr.point(10, 10), 0)
 
     def test_paint_default_border(self):
-        """PAINT border defaults to foreground (15), not fill color."""
+        """PAINT border defaults to fill color, not foreground."""
         scr.cls()
+        # Draw a box with color 15 (white)
         gfx.line(10, 10, 50, 50, 15, b_flag=True)
-        gfx.paint(30, 30, 3)  # fill=3, border defaults to 15
+        # PAINT with fill=3 — border defaults to 3 (same as fill)
+        # Since box border is 15, not 3, paint will leak out
+        gfx.paint(30, 30, 3)
+        # Paint should have filled the entire screen (leaked out)
+        self.assertEqual(scr.point(5, 5), 3)
+        
+        # Now test correct usage: border matches outline
+        scr.cls()
+        gfx.line(10, 10, 50, 50, 3, b_flag=True)  # border is 3
+        gfx.paint(30, 30, 3)  # fill=3, border=3 (default)
+        # Paint should stay inside
         self.assertEqual(scr.point(30, 30), 3)
         self.assertEqual(scr.point(5, 5), 0)
 

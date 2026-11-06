@@ -254,8 +254,8 @@ def paint(
     fill_color = fill_color & 0x0F
 
     if border_color < 0:
-        # QBASIC default: border = current foreground color (15), NOT fill color.
-        border_color = 15
+        # QBASIC default: border = fill color (not foreground).
+        border_color = fill_color
     border_color = border_color & 0x0F
 
     fb = scr.fb()

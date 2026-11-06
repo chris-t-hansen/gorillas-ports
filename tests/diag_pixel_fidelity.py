@@ -250,12 +250,12 @@ def test_paint():
     scr.cls()
 
     # Draw a box outline and fill it.
-    gfx.line(50, 50, 150, 120, 15, b_flag=True)
-    gfx.paint(100, 85, 3)  # fill interior with color 3
+    gfx.line(50, 50, 150, 120, 3, b_flag=True)  # border is 3
+    gfx.paint(100, 85, 3)  # fill interior with color 3 (border defaults to 3)
 
     # Draw a circle and fill it (sun-like).
-    gfx.circle(300, 85, 30, 15)
-    gfx.paint(300, 85, 3)
+    gfx.circle(300, 85, 30, 3)  # border is 3
+    gfx.paint(300, 85, 3)  # fill with 3 (border defaults to 3)
 
     save_fb_png("screen9_paint")
     save_fb_scaled_png("screen9_paint")
