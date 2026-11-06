@@ -11,9 +11,11 @@ ARCH=$(uname -m)
 if [ "$ARCH" = "x86_64" ]; then
     ARCH_NAME="x86_64"
     APPIMAGETOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+    APPIMAGETOOL_SHA256="b90f4a8b18967545fda78a445b27680a1642f1ef9488ced28b65398f2be7add2"
 elif [ "$ARCH" = "aarch64" ]; then
     ARCH_NAME="aarch64"
     APPIMAGETOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage"
+    APPIMAGETOOL_SHA256="a48972e5ae91c944c5a7c80214e7e0a42dd6aa3ae979d8756203512a74ff574d"
 else
     echo "Unsupported architecture: $ARCH"
     exit 1
@@ -154,10 +156,28 @@ else
     fi
 fi
 
-# Download appimagetool
+# Download appimagetool (SHA-256 verified; AppImageKit only publishes rolling
+# "continuous" builds, so we pin by checksum and fail closed on mismatch)
 echo "Downloading appimagetool..."
+if [ -f "appimagetool" ]; then
+    echo "Verifying existing appimagetool..."
+    if ! echo "$APPIMAGETOOL_SHA256  appimagetool" | sha256sum -c --status -; then
+        echo "Warning: existing appimagetool failed checksum verification, re-downloading."
+        rm -f appimagetool
+    fi
+fi
 if [ ! -f "appimagetool" ]; then
-    wget -q "$APPIMAGETOOL_URL" -O appimagetool
+    wget -q "$APPIMAGETOOL_URL" -O appimagetool.part
+    echo "Verifying appimagetool checksum..."
+    if ! echo "$APPIMAGETOOL_SHA256  appimagetool.part" | sha256sum -c --status -; then
+        rm -f appimagetool.part
+        echo "Error: downloaded appimagetool failed SHA-256 verification." >&2
+        echo "Expected: $APPIMAGETOOL_SHA256" >&2
+        echo "The upstream 'continuous' release may have been updated. Verify the" >&2
+        echo "new build independently, then update APPIMAGETOOL_SHA256 in this script." >&2
+        exit 1
+    fi
+    mv appimagetool.part appimagetool
     chmod +x appimagetool
 fi
 

@@ -69,10 +69,15 @@ fi
 echo "Activating virtual environment..."
 source .venv/bin/activate
 
-# Check if PyInstaller is installed
+# Install pinned dependencies
+echo "Installing pinned dependencies from requirements.txt..."
+pip install -r requirements.txt
+
+# Check if PyInstaller is installed (pinned for reproducible builds)
+PYINSTALLER_VERSION="pyinstaller==6.22.3"
 if ! command -v pyinstaller &> /dev/null; then
     echo "Installing PyInstaller..."
-    pip install pyinstaller
+    pip install "$PYINSTALLER_VERSION"
 fi
 
 echo ""

@@ -87,9 +87,9 @@ Write-Host "Upgrading pip..."
 Write-Host "Installing dependencies..."
 & $Python -m pip install -r requirements.txt
 
-# Install PyInstaller
+# Install PyInstaller (pinned for reproducible builds)
 Write-Host "Installing PyInstaller..."
-& $Python -m pip install pyinstaller
+& $Python -m pip install pyinstaller==6.22.3
 
 Write-Host ""
 Write-Host "Building standalone executable..."

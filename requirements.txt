@@ -1,2 +1,4 @@
-pygame-ce>=2.5.0
-numpy>=2.0.0
+# Pinned for reproducible, auditable builds (see SECURITY_NOTES.md).
+# Bump deliberately after review; do not use floating ranges.
+pygame-ce==2.5.8
+numpy==2.5.4
