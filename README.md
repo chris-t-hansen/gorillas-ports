@@ -127,6 +127,26 @@ doas pkg_add sdl2 sdl2-image sdl2-mixer sdl2-ttf portmidi
 sudo pkgin install SDL2 SDL2_image SDL2_mixer SDL2_ttf portmidi
 ```
 
+### AppImage (Linux - No Installation Required)
+
+For Linux users who want a portable, self-contained executable:
+
+**Download pre-built AppImages** from [Releases](https://github.com/chris-t-hansen/gorillas-ports/releases):
+- `Gorillas-x86_64.AppImage` for Intel/AMD CPUs
+- `Gorillas-aarch64.AppImage` for ARM64 CPUs (Raspberry Pi, etc.)
+
+**Or build your own:**
+```bash
+./build.sh              # Build the executable first
+./build_appimage.sh     # Create the AppImage
+```
+
+The AppImage bundles SDL2 and all dependencies, so users don't need to install anything. Just download, make executable, and run:
+```bash
+chmod +x Gorillas-*.AppImage
+./Gorillas-*.AppImage
+```
+
 ### Cross-platform compatibility
 
 - Build on each target platform separately
