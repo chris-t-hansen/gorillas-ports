@@ -75,6 +75,8 @@ venv.bak/
 *.svg
 # ...but keep golden-file test images (SKILL.md Step 7)
 !tests/**/*.png
+# ...but keep the main screenshot for README
+!screenshot.png
 # Diagnostic temporary output (not golden files)
 tests/output/
 
