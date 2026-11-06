@@ -27,6 +27,15 @@ if [ ! -f "dist/gorillas" ]; then
     exit 1
 fi
 
+# Check if virtual environment exists
+if [ ! -d ".venv" ]; then
+    echo "Error: .venv not found. Please run build.sh first."
+    exit 1
+fi
+
+# Activate virtual environment
+source .venv/bin/activate
+
 # Clean up previous AppImage build
 rm -rf Gorillas.AppDir Gorillas-$ARCH_NAME.AppImage
 
@@ -44,23 +53,50 @@ chmod +x Gorillas.AppDir/usr/bin/gorillas
 
 # Bundle SDL2 libraries
 echo "Bundling SDL2 libraries..."
-for lib in libSDL2-2.0.so.0 libSDL2_image-2.0.so.0 libSDL2_mixer-2.0.so.0 libSDL2_ttf-2.0.so.0 libportmidi.so.0; do
-    # Try to find the library
-    LIB_PATH=$(ldconfig -p | grep "$lib" | head -1 | awk '{print $NF}' || true)
-    
-    if [ -n "$LIB_PATH" ] && [ -f "$LIB_PATH" ]; then
-        echo "  Found $lib at $LIB_PATH"
-        cp -L "$LIB_PATH" Gorillas.AppDir/usr/lib/
-        
-        # Also copy dependencies
-        ldd "$LIB_PATH" | grep "=>" | awk '{print $3}' | while read dep; do
-            if [ -f "$dep" ] && [[ ! "$dep" =~ ^/lib ]]; then
-                echo "    Copying dependency: $dep"
-                cp -L "$dep" Gorillas.AppDir/usr/lib/ || true
+# First, try to find SDL2 libraries from pygame-ce installation
+PYGAME_DIR=$(python -c "import pygame; import os; print(os.path.dirname(pygame.__file__))" 2>/dev/null || echo "")
+if [ -n "$PYGAME_DIR" ] && [ -d "$PYGAME_DIR" ]; then
+    echo "  Found pygame-ce at: $PYGAME_DIR"
+    for lib in libSDL2-2.0.so.0 libSDL2_image-2.0.so.0 libSDL2_mixer-2.0.so.0 libSDL2_ttf-2.0.so.0 libportmidi.so.0; do
+        if [ -f "$PYGAME_DIR/$lib" ]; then
+            echo "  Bundling $lib from pygame-ce"
+            cp -L "$PYGAME_DIR/$lib" Gorillas.AppDir/usr/lib/
+        fi
+    done
+    # Also bundle any other shared libraries from pygame directory
+    for lib in $(ls $PYGAME_DIR/*.so* 2>/dev/null || true); do
+        if [ -f "$lib" ]; then
+            LIBNAME=$(basename "$lib")
+            if [ ! -f "Gorillas.AppDir/usr/lib/$LIBNAME" ]; then
+                echo "  Bundling $LIBNAME from pygame-ce"
+                cp -L "$lib" Gorillas.AppDir/usr/lib/ || true
             fi
-        done
-    else
-        echo "  Warning: $lib not found, skipping"
+        fi
+    done
+else
+    echo "  Warning: pygame-ce not found, trying system libraries"
+fi
+
+# Also try system libraries as fallback
+for lib in libSDL2-2.0.so.0 libSDL2_image-2.0.so.0 libSDL2_mixer-2.0.so.0 libSDL2_ttf-2.0.so.0 libportmidi.so.0; do
+    if [ ! -f "Gorillas.AppDir/usr/lib/$lib" ]; then
+        # Try to find the library
+        LIB_PATH=$(ldconfig -p | grep "$lib" | head -1 | awk '{print $NF}' || true)
+        
+        if [ -n "$LIB_PATH" ] && [ -f "$LIB_PATH" ]; then
+            echo "  Found $lib at $LIB_PATH"
+            cp -L "$LIB_PATH" Gorillas.AppDir/usr/lib/
+            
+            # Also copy dependencies
+            ldd "$LIB_PATH" | grep "=>" | awk '{print $3}' | while read dep; do
+                if [ -f "$dep" ] && [[ ! "$dep" =~ ^/lib ]]; then
+                    echo "    Copying dependency: $dep"
+                    cp -L "$dep" Gorillas.AppDir/usr/lib/ || true
+                fi
+            done
+        else
+            echo "  Warning: $lib not found in system either"
+        fi
     fi
 done
 
@@ -127,7 +163,15 @@ fi
 
 # Build the AppImage
 echo "Building AppImage..."
-ARCH=$ARCH_NAME ./appimagetool Gorillas.AppDir Gorillas-$ARCH_NAME.AppImage
+# Check if FUSE is available
+if ! ./appimagetool --version &>/dev/null; then
+    echo "  FUSE not available, extracting appimagetool..."
+    ./appimagetool --appimage-extract
+    EXTRACTED_TOOL="./squashfs-root/AppRun"
+    ARCH=$ARCH_NAME $EXTRACTED_TOOL Gorillas.AppDir Gorillas-$ARCH_NAME.AppImage
+else
+    ARCH=$ARCH_NAME ./appimagetool Gorillas.AppDir Gorillas-$ARCH_NAME.AppImage
+fi
 
 # Show result
 echo ""
