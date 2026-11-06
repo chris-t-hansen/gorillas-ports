@@ -6,8 +6,6 @@ Two gorillas on city rooftops take turns throwing explosive bananas at each othe
 accounting for wind, gravity, and the skyline. Runs natively on modern systems —
 no DOSBox, no emulator.
 
-![Game Field](tests/golden/game_field_x2.png)
-
 ## Setup
 
 ```bash
