@@ -72,11 +72,16 @@ def init() -> None:
 
     r = scr.rows()
     c = scr.cols()
+    
+    # Clamp default colors to palette size (4 for CGA, 16 for text/EGA)
+    max_color = 3 if scr.mode() == 1 else 15
+    default_fg = 7 & max_color
+    
     _grid_chars = np.full((r, c), 32, dtype=np.uint8)  # spaces
-    _grid_attrs = [[(7, 0, False)] * c for _ in range(r)]
+    _grid_attrs = [[(default_fg, 0, False)] * c for _ in range(r)]
     _cur_row = 0
     _cur_col = 0
-    _fg = 7
+    _fg = default_fg
     _bg = 0
     _blink = False
     _vp_top = -1
@@ -117,14 +122,19 @@ def color(fg: int = -1, bg: int = -1) -> None:
 
     fg 0-15: foreground color. fg >= 16: color (fg-16) with blink.
     bg 0-7: background color (EGA: 0-15 in some modes).
+    
+    In CGA graphics mode (SCREEN 1), colors are clamped to 0-3.
     """
     global _fg, _bg, _blink
 
+    # Clamp colors to palette size (4 for CGA graphics, 16 for text/EGA)
+    max_color = 3 if scr.mode() == 1 else 15
+
     if fg >= 0:
         _blink = fg >= 16
-        _fg = fg & 0x0F
+        _fg = fg & max_color
     if bg >= 0:
-        _bg = bg & 0x0F
+        _bg = bg & max_color
 
 
 # ---------------------------------------------------------------------------

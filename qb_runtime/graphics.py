@@ -20,7 +20,11 @@ def pset(x: int, y: int, color: int = -1) -> None:
     """PSET (x, y)[, color]. color=-1 uses current foreground."""
     fb = scr.fb()
     if 0 <= x < scr.fb_width() and 0 <= y < scr.fb_height():
-        fb[y, x] = color & 0x0F if color >= 0 else 15
+        if color < 0:
+            color = 15
+        # Clamp color to palette size (4 for CGA, 16 for EGA)
+        max_color = 3 if scr.mode() == 1 else 15
+        fb[y, x] = color & max_color
 
 
 def preset(x: int, y: int) -> None:
@@ -44,6 +48,10 @@ def _plot_line(x0: int, y0: int, x1: int, y1: int, color: int) -> None:
     """
     fb = scr.fb()
     h, w = fb.shape
+    
+    # Clamp color to palette size (4 for CGA, 16 for EGA)
+    max_color = 3 if scr.mode() == 1 else 15
+    color = color & max_color
 
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
@@ -81,7 +89,10 @@ def line(
     """
     if color < 0:
         color = 15
-    color = color & 0x0F
+    
+    # Clamp color to palette size (4 for CGA, 16 for EGA)
+    max_color = 3 if scr.mode() == 1 else 15
+    color = color & max_color
 
     if bf_flag:
         # Filled box.
@@ -114,6 +125,10 @@ def _plot_line_styled(
     """Draw a styled line using a 16-bit pattern mask."""
     fb = scr.fb()
     h, w = fb.shape
+
+    # Clamp color to palette size (4 for CGA, 16 for EGA)
+    max_color = 3 if scr.mode() == 1 else 15
+    color = color & max_color
 
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
@@ -163,7 +178,10 @@ def circle(
     """
     if color < 0:
         color = 15
-    color = color & 0x0F
+    
+    # Clamp color to palette size (4 for CGA, 16 for EGA)
+    max_color = 3 if scr.mode() == 1 else 15
+    color = color & max_color
 
     if aspect is None:
         aspect = 1.0
@@ -251,12 +269,15 @@ def paint(
     """
     if fill_color < 0:
         fill_color = 15
-    fill_color = fill_color & 0x0F
+    
+    # Clamp colors to palette size (4 for CGA, 16 for EGA)
+    max_color = 3 if scr.mode() == 1 else 15
+    fill_color = fill_color & max_color
 
     if border_color < 0:
         # QBASIC default: border = fill color (not foreground).
         border_color = fill_color
-    border_color = border_color & 0x0F
+    border_color = border_color & max_color
 
     fb = scr.fb()
     h, w = fb.shape
