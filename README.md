@@ -83,6 +83,50 @@ pwsh build.ps1
 - Windows: Nothing! Just run the `.exe`
 - macOS/Linux/BSD: SDL2 runtime libraries (usually pre-installed or easy to install)
 
+### Installing SDL2 (for running pre-built executables)
+
+If you're running a pre-built executable on macOS, Linux, or BSD, you need to install SDL2 first:
+
+**macOS** (requires [Homebrew](https://brew.sh/)):
+```bash
+brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf portmidi
+```
+
+**Debian/Ubuntu/Pop!_OS**:
+```bash
+sudo apt install libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0 libportmidi0
+```
+
+**Fedora/RHEL/CentOS**:
+```bash
+sudo dnf install SDL2 SDL2_image SDL2_mixer SDL2_ttf portmidi
+```
+
+**Arch Linux/Manjaro/CachyOS**:
+```bash
+sudo pacman -S sdl2 sdl2_image sdl2_mixer sdl2_ttf portmidi
+```
+
+**openSUSE**:
+```bash
+sudo zypper install libSDL2-2_0-0 libSDL2_image-2_0-0 libSDL2_mixer-2_0-0 libSDL2_ttf-2_0-0 libportmidi0
+```
+
+**FreeBSD**:
+```bash
+sudo pkg install sdl2 sdl2_image sdl2_mixer sdl2_ttf portmidi
+```
+
+**OpenBSD**:
+```bash
+doas pkg_add sdl2 sdl2-image sdl2-mixer sdl2-ttf portmidi
+```
+
+**NetBSD**:
+```bash
+sudo pkgin install SDL2 SDL2_image SDL2_mixer SDL2_ttf portmidi
+```
+
 ### Cross-platform compatibility
 
 - Build on each target platform separately
