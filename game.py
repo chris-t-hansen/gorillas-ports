@@ -599,8 +599,6 @@ def explode_gorilla(x: float, y: float) -> int:
         player_hit = 1
     else:
         player_hit = 2
-    
-    print(f"DEBUG explode_gorilla: x={x}, ScrWidth/2={ScrWidth/2.0}, player_hit={player_hit}")
 
     sound.play("MBO0L16EFGEFDC")
 
@@ -1137,18 +1135,14 @@ def play_game(player1: str, player2: str, num_games: int) -> None:
             if hit:
                 # hit is the player who was hit (1 or 2)
                 # If thrower hit themselves, opponent gets the point
-                print(f"DEBUG: tosser={tosser}, hit={hit}, hit==tosser? {hit == tosser}")
                 if hit == tosser:
                     other = 3 - tosser
                     total_wins[other] = total_wins[other] + 1
-                    print(f"DEBUG: Thrower hit themselves, giving point to player {other}")
                     victory_dance(other)
                 else:
                     # Thrower hit opponent, thrower gets the point
                     total_wins[tosser] = total_wins[tosser] + 1
-                    print(f"DEBUG: Thrower hit opponent, giving point to tosser (player {tosser})")
                     victory_dance(tosser)
-                print(f"DEBUG: Scores now: P1={total_wins[1]}, P2={total_wins[2]}")
                 scr.present()
 
         timing.sleep(1)
@@ -1171,7 +1165,6 @@ def play_game(player1: str, player2: str, num_games: int) -> None:
     txt.print_semi(player2)
     txt.tab(50)
     txt.print_(str(total_wins[2]))
-    print(f"DEBUG Game Over: {player1}={total_wins[1]}, {player2}={total_wins[2]}")
     center(24, "Press any key to continue")
     scr.present()
     sparkle_pause()
