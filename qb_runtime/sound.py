@@ -257,9 +257,14 @@ def _parse_play(macro: str) -> list:
             i += 1
             num, i = _parse_number(macro, i)
             freq = _note_freq(num)
-            dur = state.note_duration() * state.articulation
-            dur, i = state.apply_dots(dur, macro, i)
-            events.append((freq, dur))
+            dur = state.note_duration()  # Total duration (note + rest)
+            sound_dur = dur * state.articulation  # How long note sounds
+            rest_dur = dur - sound_dur  # Rest after note
+            sound_dur, i = state.apply_dots(sound_dur, macro, i)
+            rest_dur, i = state.apply_dots(rest_dur, macro, i) if rest_dur > 0 else (rest_dur, i)
+            events.append((freq, sound_dur))
+            if rest_dur > 0:
+                events.append((0.0, rest_dur))  # Rest
 
         elif ch in _NOTE_NAMES:
             base_note = _NOTE_NAMES[ch]
@@ -275,9 +280,14 @@ def _parse_play(macro: str) -> list:
             # Octave 0 = C0, etc.
             note_num = state.octave * 12 + base_note + 1  # +1 because N1=C1
             freq = _note_freq(note_num)
-            dur = state.note_duration() * state.articulation
-            dur, i = state.apply_dots(dur, macro, i)
-            events.append((freq, dur))
+            dur = state.note_duration()  # Total duration (note + rest)
+            sound_dur = dur * state.articulation  # How long note sounds
+            rest_dur = dur - sound_dur  # Rest after note
+            sound_dur, i = state.apply_dots(sound_dur, macro, i)
+            rest_dur, i = state.apply_dots(rest_dur, macro, i) if rest_dur > 0 else (rest_dur, i)
+            events.append((freq, sound_dur))
+            if rest_dur > 0:
+                events.append((0.0, rest_dur))  # Rest
 
         elif ch == "P":
             i += 1
