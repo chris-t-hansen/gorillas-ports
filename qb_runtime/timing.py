@@ -74,11 +74,14 @@ def _pump_wait(seconds: float) -> None:
     """Wait for *seconds* while pumping pygame events and presenting.
 
     Never blocks the window — events are processed and screen is refreshed
-    during the wait.
+    during the wait. Routes events through keyboard module so INKEY$ sees
+    keypresses that arrive during the wait.
     """
+    from . import keyboard as kbd
+
     end = time.monotonic() + seconds
     while time.monotonic() < end:
-        scr.pump()
+        kbd._process_events()  # pumps events AND fills key buffer
         scr.present()
         remaining = end - time.monotonic()
         if remaining > 0.01:
@@ -128,8 +131,7 @@ def sleep(seconds: float = 0) -> bool:
 
     end = time.monotonic() + seconds
     while time.monotonic() < end:
-        scr.pump()
-        k = kbd.inkey()
+        k = kbd.inkey()  # inkey() already pumps events via _process_events()
         if k:
             return True  # interrupted
         scr.present()
