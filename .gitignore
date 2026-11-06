@@ -118,4 +118,9 @@ test-results/
 .Trashes
 ._/**/*
 
+# AppImage build artifacts
+*.AppImage
+Gorillas.AppDir/
+appimagetool
+
 # End of .gitignore
