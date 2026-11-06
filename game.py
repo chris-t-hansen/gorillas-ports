@@ -1074,7 +1074,7 @@ def gorilla_intro(player1: str, player2: str) -> None:
 # ---------------------------------------------------------------------------
 def play_game(player1: str, player2: str, num_games: int) -> None:
     """PlayGame — main game loop. BAS L843-888."""
-    global SunHit
+    global SunHit, MaxCol
 
     total_wins = [0, 0, 0]  # 1-indexed: total_wins[1], total_wins[2]
     j = 1
