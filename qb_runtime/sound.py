@@ -54,8 +54,10 @@ def init(mute: bool = False) -> None:
     if not mute and _mixer_available:
         try:
             pygame.mixer.init(frequency=_SAMPLE_RATE, size=-16, channels=1, buffer=512)
-        except Exception:
-            pass  # sound disabled
+        except Exception as e:
+            # Sound disabled, but log the error for debugging
+            import sys
+            print(f"Warning: pygame.mixer.init() failed: {e}", file=sys.stderr)
 
 
 def set_mute(mute: bool) -> None:
@@ -92,7 +94,12 @@ def _square_wave(freq: float, duration: float, volume: float = 1.0) -> np.ndarra
 
 def _play_sample(samples: np.ndarray) -> None:
     """Play a numpy int16 array through pygame.mixer."""
-    if _MUTED or not _mixer_available:
+    if _MUTED:
+        return
+    if not _mixer_available:
+        return
+    if not pygame.mixer.get_init():
+        # Mixer not initialized
         return
     try:
         sound = pygame.sndarray.make_sound(samples)
@@ -100,8 +107,9 @@ def _play_sample(samples: np.ndarray) -> None:
         # Wait for completion.
         while pygame.mixer.get_busy():
             pygame.time.wait(5)
-    except Exception:
-        pass
+    except Exception as e:
+        import sys
+        print(f"Warning: sound playback failed: {e}", file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------

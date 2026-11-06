@@ -381,25 +381,33 @@ def do_shot(player_num: int, x: int, y: int) -> int:
 
     txt.color(7, 0)
 
-    # Player 1's turn
-    txt.locate(3, 1)
-    txt.print_(" " + chr_(10) + " ")  # clear line
-    txt.locate(3, 1)
-    txt.print_semi("Angle: ")
-    scr.present()
-    angle = get_num(3, 8)
-
-    txt.locate(4, 1)
-    txt.print_semi("Velocity: ")
-    scr.present()
-    velocity = int(get_num(4, 11))
-    scr.present()
-
+    # Position input based on player number
     if player_num == 1:
-        txt.locate(3, 1)
-        txt.print_(" " * 40)
-        txt.locate(4, 1)
-        txt.print_(" " * 40)
+        locate_col = 1
+    else:
+        locate_col = 66 if Mode == 9 else 26
+
+    txt.locate(2, locate_col)
+    txt.print_semi("Angle:")
+    scr.present()
+    angle = get_num(2, locate_col + 7)
+
+    txt.locate(3, locate_col)
+    txt.print_semi("Velocity:")
+    scr.present()
+    velocity = int(get_num(3, locate_col + 10))
+    scr.present()
+
+    # Flip angle for player 2
+    if player_num == 2:
+        angle = 180.0 - angle
+
+    # Erase input lines
+    for i in range(1, 5):
+        txt.locate(i, 1)
+        txt.print_semi(" " * 30)
+        txt.locate(i, 50 // (80 // MaxCol))
+        txt.print_semi(" " * 30)
 
     # Plot the shot
     return plot_shot(x, y, angle, velocity, player_num)
