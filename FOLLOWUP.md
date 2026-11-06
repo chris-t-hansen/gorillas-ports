@@ -7,7 +7,7 @@ _Last updated: end of session on SKILL Step 2 (qb_runtime/ package). Read this f
 | Step | Deliverable | Status |
 |---|---|---|
 | 1 | `INVENTORY.md` | ✅ Done and committed (`4d4b352`) |
-| 2 | `qb_runtime/` package | 🔶 **IN PROGRESS — research done, no code written yet** |
+| 2 | `qb_runtime/` package | ✅ **DONE** — all 9 modules written, 124 tests passing (headless) |
 | 3 | Pixel fidelity (fonts, palettes, rasterizers) | ❌ not started |
 | 4 | Timing conversion + `TIMING_NOTES.md` | ❌ not started |
 | 5 | Language semantics | ❌ not started |
@@ -42,7 +42,8 @@ b = 0xAA * ( v       & 1) + 0x55 * ((v >> 3) & 1)
 Verified against every known anchor: 1→(0,0,170) blue, 4→(170,0,0) red, 7→(170,170,170) light gray, 20→(170,85,0) **brown**, 56→(85,85,85) dark gray, 63→white.
 
 - SCREEN 9 **default palette registers** (attr 0–15): `[0, 1, 2, 3, 4, 5, 20, 7, 56, 57, 58, 59, 60, 61, 62, 63]` (note brown=20, NOT 6).
-- Game's `SetScreen` remaps decode to: 1→46 = **(255,170,85) orange** (gorillas — yes, orange, not green!), 2→44 = (255,85,85) red (explosions), 3→54 = (255,255,85) pale yellow (sun), 5→7 = light gray, 6→4 = red, 7→3 = cyan, 9→63 = white, 0→1 = blue (sky background).
+- Game's `SetScreen` remaps decode to: 1→46 = **(255,170,85) orange** (gorillas — yes, orange, not green!), 2→44 = **(255,0,85) vivid red** (explosions), 3→54 = **(255,255,0) yellow** (sun), 5→7 = light gray, 6→4 = red, 7→3 = cyan, 9→63 = white, 0→1 = blue (sky background).
+- **Corrections from prior session**: EGA 44 = (255,0,85) NOT (255,85,85); EGA 54 = (255,255,0) NOT (255,255,85). These were confirmed by running the decode formula — the prior manual calculation had arithmetic errors.
 - 16-color **text palette** for SCREEN 0 is the standard CGA/VGA set from SKILL.md (`#000000 #0000AA #00AA00 #00AAAA #AA0000 #AA00AA #AA5500 #AAAAAA #555555 #5555FF #55FF55 #55FFFF #FF5555 #FF55FF #FFFF55 #FFFFFF`).
 
 ### 3. Timing model derived (goes in `timing.py` + `TIMING_NOTES.md`)
