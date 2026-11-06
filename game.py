@@ -46,6 +46,10 @@ def parse_args():
         "--speed", type=float, default=1.0,
         help="Speed multiplier for game timing (default: 1.0)"
     )
+    parser.add_argument(
+        "--cga", action="store_true",
+        help="Force CGA mode (SCREEN 1, 320x200, 4 colors)"
+    )
     return parser.parse_args()
 
 
@@ -203,8 +207,8 @@ def set_screen() -> None:
     else:
         ExplosionColor = 2
         BackColor = 0
-        # COLOR 0, 2 in SCREEN 1 — black bg, palette 1
-        # (CGA palette handling is a TODO for CGA path)
+        # COLOR 0, 2 in SCREEN 1 — black bg, palette 0 (cyan/magenta/white)
+        scr.set_cga_palette(0, 0)  # palette 0, background color 0 (black)
 
 
 # ---------------------------------------------------------------------------
@@ -1214,13 +1218,17 @@ def init_vars() -> None:
     BAS L142-212."""
     global Mode, ScrWidth, ScrHeight, GHeight, MachSpeed, SunHt, MaxCol
 
-    # Try SCREEN 9 first (EGA)
-    Mode = 9
+    # Try SCREEN 9 first (EGA) unless --cga flag is set
+    if args.cga:
+        Mode = 1
+    else:
+        Mode = 9
+    
     try:
         scr.screen(Mode)
         txt.init()
     except Exception:
-        # Fallback to SCREEN 1 (CGA)
+        # Fallback to SCREEN 1 (CGA) if EGA fails
         Mode = 1
         scr.screen(Mode)
         txt.init()

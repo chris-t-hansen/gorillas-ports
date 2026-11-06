@@ -347,10 +347,14 @@ class TestSoundParse(unittest.TestCase):
     def test_parse_simple(self):
         from qb_runtime.sound import _parse_play
         events = _parse_play("O4L4C")
-        self.assertEqual(len(events), 1)
+        # Articulation adds a rest after the note, so we get 2 events
+        self.assertEqual(len(events), 2)
         freq, dur = events[0]
         self.assertGreater(freq, 0)  # C4 ≈ 261.6 Hz
         self.assertAlmostEqual(freq, 261.6, delta=1.0)
+        # Second event should be a rest
+        rest_freq, rest_dur = events[1]
+        self.assertEqual(rest_freq, 0.0)  # rest
 
     def test_parse_rest(self):
         from qb_runtime.sound import _parse_play
@@ -362,7 +366,8 @@ class TestSoundParse(unittest.TestCase):
     def test_parse_sequence(self):
         from qb_runtime.sound import _parse_play
         events = _parse_play("CDE")
-        self.assertEqual(len(events), 3)
+        # Each note produces a note + rest, so 3 notes = 6 events
+        self.assertEqual(len(events), 6)
 
     def test_parse_tempo(self):
         from qb_runtime.sound import _parse_play

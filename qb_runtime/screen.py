@@ -90,6 +90,26 @@ _MODE_GEOMETRY = {
     9: (640, 350, 8, 14, 80, 25),
 }
 
+# ---------------------------------------------------------------------------
+# CGA palettes
+# ---------------------------------------------------------------------------
+
+# CGA Palette 0: Black, Cyan, Magenta, White
+CGA_PALETTE_0 = [
+    (0x00, 0x00, 0x00),  # 0 Black
+    (0x55, 0xFF, 0xFF),  # 1 Cyan
+    (0xFF, 0x55, 0xFF),  # 2 Magenta
+    (0xFF, 0xFF, 0xFF),  # 3 White
+]
+
+# CGA Palette 1: Black, Green, Red, Yellow (high intensity)
+CGA_PALETTE_1 = [
+    (0x00, 0x00, 0x00),  # 0 Black
+    (0x55, 0xFF, 0x55),  # 1 Green
+    (0xFF, 0x55, 0x55),  # 2 Red
+    (0xFF, 0xFF, 0x55),  # 3 Yellow
+]
+
 
 # ---------------------------------------------------------------------------
 # Module-level state (singleton screen)
@@ -97,7 +117,7 @@ _MODE_GEOMETRY = {
 
 _window: pygame.Surface = None
 _fb: np.ndarray = None  # indexed framebuffer, shape (H, W), dtype uint8
-_palette: list = None  # list of 16 (R,G,B) tuples
+_palette: list = None  # list of 16 (R,G,B) tuples (4 for CGA)
 _mode: int = -1
 _fb_w: int = 0
 _fb_h: int = 0
@@ -105,6 +125,8 @@ _cell_w: int = 0
 _cell_h: int = 0
 _cols: int = 0
 _rows: int = 0
+_cga_palette_select: int = 0  # CGA palette 0 or 1
+_cga_bg_color: int = 0  # CGA background color (0-15)
 
 # Font: pre-rendered glyph masks (numpy uint8 arrays, 0=bg, 1=fg)
 _glyphs: list = None  # list of 256 numpy arrays
@@ -286,8 +308,12 @@ def screen(mode: int) -> None:
     _fb = np.zeros((_fb_h, _fb_w), dtype=np.uint8)
 
     # Set default palette.
-    if mode in (0, 1):
-        _palette = list(CGA_TEXT_PALETTE)
+    if mode == 0:
+        _palette = list(CGA_TEXT_PALETTE)  # SCREEN 0 uses full 16-color text palette
+    elif mode == 1:
+        _palette = list(CGA_PALETTE_1)  # SCREEN 1 uses 4-color CGA graphics palette
+        # Initialize CGA with palette 1 (green/red/yellow) by default
+        set_cga_palette(1, 0)
     else:
         _palette = ega_default_palette()
 
@@ -356,12 +382,56 @@ def set_palette_color(attr: int, value) -> None:
     *value* can be:
       - An int (EGA 6-bit value, decoded via ega_decode)
       - A (R, G, B) tuple
+      
+    For CGA mode (mode 1), only indices 0-3 are valid.
     """
-    attr = attr & 0x0F
-    if isinstance(value, int):
-        _palette[attr] = ega_decode(value)
+    if _mode == 1:
+        # CGA mode: only 4 colors (0-3)
+        if attr > 3:
+            return
+        if isinstance(value, int):
+            # In CGA, int values map to 16-color text palette
+            if 0 <= value < len(CGA_TEXT_PALETTE):
+                _palette[attr] = CGA_TEXT_PALETTE[value]
+        else:
+            _palette[attr] = tuple(value)
     else:
-        _palette[attr] = tuple(value)
+        # EGA mode: 16 colors
+        attr = attr & 0x0F
+        if isinstance(value, int):
+            _palette[attr] = ega_decode(value)
+        else:
+            _palette[attr] = tuple(value)
+
+
+def set_cga_palette(palette_num: int, bg_color: int = 0) -> None:
+    """Set CGA palette for SCREEN 1.
+    
+    Args:
+        palette_num: 0 for Palette 0 (cyan/magenta/white), 1 for Palette 1 (green/red/yellow)
+        bg_color: Background color index (0-15) from CGA text palette
+    """
+    global _cga_palette_select, _cga_bg_color
+    
+    if _mode != 1:
+        return  # Only valid in CGA mode
+    
+    _cga_palette_select = palette_num & 1
+    _cga_bg_color = bg_color & 0x0F
+    
+    # Set the 4-color palette
+    base_palette = CGA_PALETTE_0 if _cga_palette_select == 0 else CGA_PALETTE_1
+    
+    # Index 0: background color from 16-color palette
+    if 0 <= bg_color < len(CGA_TEXT_PALETTE):
+        _palette[0] = CGA_TEXT_PALETTE[bg_color]
+    else:
+        _palette[0] = (0, 0, 0)
+    
+    # Indices 1-3: colors from selected palette
+    _palette[1] = base_palette[1]
+    _palette[2] = base_palette[2]
+    _palette[3] = base_palette[3]
 
 
 # ---------------------------------------------------------------------------
