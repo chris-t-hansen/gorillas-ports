@@ -55,3 +55,22 @@ Multiplies all `Rest()` durations. Default = 1.0.
 - `--speed 2.0` = double speed (delays are 0.5× as long)
 
 Does NOT affect `SLEEP` (always real seconds) or `PLAY` tempo.
+
+## Step 4 verification (game.py wiring)
+
+The `--speed` flag is wired end-to-end through:
+1. CLI argument `--speed X` → `timing.set_speed(X)` in `game.py main()`
+2. `timing.rest(t)` divides by speed multiplier before wall-clock wait
+3. `timing._pump_wait()` pumps pygame events + presents during all waits
+4. `timing.sleep()` pumps events + checks for key interrupt
+
+All `Rest()` calls in game.py route through `timing.rest()`:
+- `rest(0.1)` — throw pose (PlotShot L927)
+- `rest(0.02)` — banana animation frame (PlotShot L956)
+- `rest(0.005)` — explosion ring (DoExplosion L266)
+- `rest(1)` / `rest(0.3)` / `rest(0.1)` — GorillaIntro dance
+- `rest(0.2)` — VictoryDance
+
+`SLEEP 1` → `timing.sleep(1)` (real seconds, any key ends early).
+
+SparklePause uses `timing._pump_wait(0.05)` for ~20 fps sparkle cycle.

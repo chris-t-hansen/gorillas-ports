@@ -37,3 +37,13 @@ _A living document. Each entry cites the source line and the decision._
 14. **PAINT border_color default (graphics.py)**: the `paint()` function defaulted `border_color` to `fill_color` when not specified. QBASIC's `PAINT` defaults the border to the **current foreground color** (typically 15/white), not the fill color. This caused flood fills to "leak" when the fill color equaled the border color. Fixed: border_color defaults to 15 (foreground).
 
 15. **PLAY note frequency mapping (sound.py)**: the initial `_note_freq()` mapping was off by one octave (O4C produced C5 at 523 Hz instead of middle C at 261.6 Hz). Fixed: note 1 (O0 C) = MIDI 12 (C0), note 49 (O4 C) = MIDI 60 (middle C), using `midi = note_num + 11`.
+
+## Step 4/5 implementation notes
+
+16. **GorillaIntro CLS 2**: the original uses `CLS 2` (clear graphics viewport only) between DrawGorilla calls during sprite capture. This relies on `VIEW PRINT 9 TO 24` restricting the clear area. The port preserves this: `text.cls(mode_flag=2)` clears only the viewport, leaving text rows 1-8 intact.
+
+17. **SparklePause frame rate**: the original is CPU-paced (no delay). The port uses `timing._pump_wait(0.05)` for ~20 fps sparkle cycle. This is adjustable — increase the value for slower sparkle.
+
+18. **plot_shot physics**: `t# += .1` per frame regardless of wall time. This means the banana trajectory is computed in discrete 0.1-unit steps, not continuous time. The port preserves this exactly.
+
+19. **Velocity < 2 self-hit**: when velocity is below 2, the banana immediately hits the throwing gorilla (PlotShot L930-931). The port sets `pointval = OBJECTCOLOR` and skips the animation loop, going straight to ExplodeGorilla.

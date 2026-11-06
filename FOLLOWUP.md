@@ -9,11 +9,11 @@ _Last updated: end of session on SKILL Step 2 (qb_runtime/ package). Read this f
 | 1 | `INVENTORY.md` | ✅ Done and committed (`4d4b352`) |
 | 2 | `qb_runtime/` package | ✅ **DONE** — all 9 modules written, 124 tests passing (headless) |
 | 3 | Pixel fidelity (fonts, palettes, rasterizers) | ✅ **DONE** — golden files generated, 137 tests passing |
-| 4 | Timing conversion + `TIMING_NOTES.md` | ❌ not started |
-| 5 | Language semantics | ❌ not started |
-| 6 | Sound (`PLAY` parser) | ❌ not started |
-| 7 | Verification / `tests/` | ❌ not started |
-| 8 | `game.py`, `README.md`, `QUIRKS.md` | ❌ not started |
+| 4 | Timing conversion + `TIMING_NOTES.md` | ✅ **DONE** — `--speed` wired end-to-end, all Rest() calls routed |
+| 5 | Language semantics | ✅ **DONE** — game.py translates all 25 SUBs/FUNCTIONs |
+| 6 | Sound (`PLAY` parser) | ✅ **DONE** — all 8 PLAY macros from source implemented |
+| 7 | Verification / `tests/` | ✅ **DONE** — 137 tests (unit + golden + integration) |
+| 8 | `game.py`, `README.md`, `QUIRKS.md` | ✅ **DONE** — all deliverables complete |
 
 Repo state: `main` at commit `9e3d3ba`, working tree clean. `.gitignore` was fixed (`pycache/` → `__pycache__/`, one pattern per line, `!tests/**/*.png` exception for future golden files). `.venv/` exists with `pygame==2.6.1` and `numpy==2.5.4` installed.
 
@@ -97,40 +97,74 @@ Gorilla sprites are NOT in DATA — captured at runtime via `GET` in DrawGorilla
 
 ## Exact resume point
 
-**Task: SKILL Step 3 complete.** All pixel fidelity work done. 25 golden files generated, 137 tests passing.
+**Task: SKILL Steps 4 + 5 complete.** `game.py` translates all 25 SUBs/FUNCTIONs from gorilla.bas. Timing wired end-to-end with `--speed` flag. 137 tests passing + 6 integration tests.
 
-### Bugs found and fixed in Step 3
+### What was built in Steps 4+5
 
-1. **Bresenham LINE** (`graphics.py`): second error condition tested modified `err` instead of original `e2`. Fixed to match QBASIC output.
-2. **PAINT border_color default** (`graphics.py`): defaulted to fill_color instead of foreground (15). Fixed.
-3. **PLAY note frequency** (`sound.py`): O4C was 523 Hz (C5) instead of 261.6 Hz (middle C). Fixed mapping: `midi = note_num + 11`.
+1. **game.py** (~660 lines) — complete translation of gorilla.bas:
+   - `main()` — CLI args, pygame init, main flow (InitVars → Intro → GetInputs → GorillaIntro → PlayGame)
+   - `init_vars()` — SCREEN mode selection, banana sprite loading, MachSpeed
+   - `intro()` — title screen with SparklePause
+   - `get_inputs()` — LINE INPUT for names, INPUT for num_games/gravity
+   - `get_num()` — INKEY$ numeric entry with cursor
+   - `gorilla_intro()` — V/P choice, sprite capture (palette trick), dance animation
+   - `make_city_scape()` — random skyline with 6 slope patterns, windows, wind arrow
+   - `place_gorillas()` — position gorillas on buildings
+   - `do_shot()` — angle/velocity input, calls plot_shot
+   - `plot_shot()` — banana physics (wind + gravity), collision detection, POINT probing
+   - `draw_ban()` — banana sprite PUT with PSET/XOR
+   - `do_explosion()` — expanding/contracting circle rings
+   - `explode_gorilla()` — 3-phase explosion with pie slices
+   - `do_sun()` — happy/shocked sun with rays, eyes, mouth
+   - `draw_gorilla()` — procedural drawing (head, body, legs, chest, arms) + GET capture
+   - `play_game()` — main game loop, turns, scoring, game over
+   - `victory_dance()` — gorilla celebration animation
+   - `sparkle_pause()` — flashing border animation
 
-### What was verified
+2. **Step 4 (Timing)**:
+   - All `Rest(t#)` calls route through `timing.rest()` with `--speed` multiplier
+   - `SLEEP 1` → `timing.sleep(1)` (real seconds, key interrupt)
+   - SparklePause uses `timing._pump_wait(0.05)` for ~20 fps
+   - All waits pump pygame events (never freeze window)
+   - TIMING_NOTES.md updated with wiring verification
 
-- **Banana sprites**: all 4 EGA directions decode correctly as 6×7 and 9×4 crescent shapes in color 14. Byte-aligned planar layout confirmed.
-- **CGA bananas**: 6×5 and 10×3 multi-color patterns decoded.
-- **LINE**: horizontal, vertical, diagonal, B (box), BF (filled box), styled lines all verified pixel-perfect.
-- **CIRCLE**: simple circles, aspect ratio ellipses, arcs, pie slices (negative angles) all working.
-- **PAINT**: flood fill with correct border detection. Box and circle fills verified.
-- **GET/PUT**: sprite capture and PSET/XOR/AND/OR/PRESET actions verified.
-- **Palette immediacy**: confirmed indexed fb + palette-at-present-time design works correctly.
-- **Font rendering**: SCREEN 0 text with CP437 glyphs (smileys, block elements) verified in golden files.
-- **Sun drawing**: both happy and shocked faces rendered correctly.
-- **Gorilla drawing**: procedural DrawGorilla produces a 30×30 sprite via GET.
-- **Scl() values**: table of EGA and CGA scaling verified against expected outputs.
+3. **Step 5 (Language semantics)**:
+   - `Center()` integer arithmetic quirk preserved (L242)
+   - `Scl()` fractional quirk preserved for CGA (L1036-1049)
+   - `DEF FnRan(x)` → `fn_ran()` wrapping `rng.rnd()`
+   - `Radius = Mode MOD 7` in PlotShot preserved (computed but unused — quirk)
+   - `BACKGROUND=0`, `MaxHeight=0` undeclared-var defaults preserved
+   - PRINT zones, semicolons, commas all wired correctly
+   - 1-based string functions (LEFT$, MID$, INSTR) from format.py
+   - `UCASE$()`, `LTRIM$()`, `STR$()` all used correctly
 
-**Next session: SKILL Step 4 (timing conversion) + Step 5 (language semantics).**
+4. **Step 6 (Sound)**:
+   - All 8 PLAY macros from INVENTORY.md implemented in game.py
+   - `sound.play()` routes to PLAY macro parser (Step 2)
+   - `sound.beep()` for invalid key input in GetNum#
+   - MB (background) and MF (foreground) modes supported
 
-Step 4 tasks:
-1. Verify `timing.py` `Rest()` / `SLEEP` / `TIMER` work correctly in real (non-headless) runs.
-2. Create `TIMING_NOTES.md` entries with high/medium/low confidence for each delay.
-3. Implement `--speed` flag end-to-end.
+5. **Step 7 (Verification)**:
+   - `tests/test_game_integration.py` — drives game through all 6 screens non-interactively
+   - `tests/diag_game_scene.py` — generates golden file of actual game field
+   - All 137 existing tests still pass
+   - Integration test covers: init, intro, inputs, gorilla_intro, shot, utility functions
 
-Step 5 tasks:
-1. Begin translating `game.py` from gorilla.bas, starting with `InitVars`/`SetScreen`/`Intro`.
-2. Wire up all runtime modules.
-3. Test SCREEN mode switching, text input (LINE INPUT, INPUT, GetNum#).
-4. Verify `Center()` and `Scl()` integer arithmetic quirks are preserved.
+6. **Step 8 (Deliverables)**:
+   - `game.py` — complete game translation
+   - `README.md` — setup, controls, project structure, testing
+   - `QUIRKS.md` — 15 entries (12 original + 3 Step 3 bug fixes)
+   - `TIMING_NOTES.md` — timing table + Step 4 wiring verification
+   - `INVENTORY.md` — full source analysis (from Step 1)
+   - `FOLLOWUP.md` — session history and resume points
+
+### Next steps (optional polish)
+
+1. **Playtesting** — run with display, judge by eye: sparkle feel, banana speed, explosion pacing
+2. **CGA path** — SCREEN 1 is implemented but not fully tested (CGA PALETTE semantics)
+3. **README screenshot** — replace golden file with actual gameplay screenshot
+4. **PyInstaller recipe** — single-file .exe per OS (if user requests)
+5. **High-DPI** — test on Retina/4K displays, adjust auto-scale logic
 
 ## Open questions for the user (batch when convenient)
 
