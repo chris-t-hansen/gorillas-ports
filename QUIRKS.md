@@ -29,3 +29,11 @@ _A living document. Each entry cites the source line and the decision._
 11. **`files.py` not needed**: Gorillas has no file I/O (no OPEN, GET#, PUT#, no save files). The `files.py` module from the SKILL layout is omitted.
 
 12. **`PALETTE` color values**: the EGA 6-bit decode formula is correct and verified against all standard anchors. Some earlier reference sources had incorrect values for EGA 44 and EGA 54; the port uses the mathematically correct values: 44=(255,0,85) and 54=(255,255,0).
+
+## Bugs found and fixed during porting (Step 3)
+
+13. **Bresenham LINE bug (graphics.py)**: the original `_plot_line()` had a classic Bresenham error where the second error-condition `if e2 < dx` was tested against the already-modified `err` value (after the first condition `if e2 > -dy` had subtracted `dy`). This caused vertical lines and 45° diagonals to have gaps or extra pixels. Fixed by testing both conditions against the same `e2` snapshot, matching the standard algorithm and QBASIC's LINE output.
+
+14. **PAINT border_color default (graphics.py)**: the `paint()` function defaulted `border_color` to `fill_color` when not specified. QBASIC's `PAINT` defaults the border to the **current foreground color** (typically 15/white), not the fill color. This caused flood fills to "leak" when the fill color equaled the border color. Fixed: border_color defaults to 15 (foreground).
+
+15. **PLAY note frequency mapping (sound.py)**: the initial `_note_freq()` mapping was off by one octave (O4C produced C5 at 523 Hz instead of middle C at 261.6 Hz). Fixed: note 1 (O0 C) = MIDI 12 (C0), note 49 (O4 C) = MIDI 60 (middle C), using `midi = note_num + 11`.

@@ -75,6 +75,8 @@ venv.bak/
 *.svg
 # ...but keep golden-file test images (SKILL.md Step 7)
 !tests/**/*.png
+# Diagnostic temporary output (not golden files)
+tests/output/
 
 # Misc
 *.tmp

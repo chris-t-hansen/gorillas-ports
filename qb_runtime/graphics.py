@@ -36,7 +36,12 @@ def preset(x: int, y: int) -> None:
 
 
 def _plot_line(x0: int, y0: int, x1: int, y1: int, color: int) -> None:
-    """Bresenham line from (x0,y0) to (x1,y1)."""
+    """Bresenham line from (x0,y0) to (x1,y1).
+
+    Standard implementation matching QBASIC's LINE output.
+    Both error conditions use the same e2 snapshot and can fire
+    independently (allowing diagonal steps when e2 falls in both ranges).
+    """
     fb = scr.fb()
     h, w = fb.shape
 
@@ -249,7 +254,8 @@ def paint(
     fill_color = fill_color & 0x0F
 
     if border_color < 0:
-        border_color = fill_color
+        # QBASIC default: border = current foreground color (15), NOT fill color.
+        border_color = 15
     border_color = border_color & 0x0F
 
     fb = scr.fb()

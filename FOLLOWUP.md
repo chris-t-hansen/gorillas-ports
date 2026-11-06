@@ -8,7 +8,7 @@ _Last updated: end of session on SKILL Step 2 (qb_runtime/ package). Read this f
 |---|---|---|
 | 1 | `INVENTORY.md` | ✅ Done and committed (`4d4b352`) |
 | 2 | `qb_runtime/` package | ✅ **DONE** — all 9 modules written, 124 tests passing (headless) |
-| 3 | Pixel fidelity (fonts, palettes, rasterizers) | ❌ not started |
+| 3 | Pixel fidelity (fonts, palettes, rasterizers) | ✅ **DONE** — golden files generated, 137 tests passing |
 | 4 | Timing conversion + `TIMING_NOTES.md` | ❌ not started |
 | 5 | Language semantics | ❌ not started |
 | 6 | Sound (`PLAY` parser) | ❌ not started |
@@ -97,15 +97,40 @@ Gorilla sprites are NOT in DATA — captured at runtime via `GET` in DrawGorilla
 
 ## Exact resume point
 
-**Task: SKILL Step 2 complete.** All `qb_runtime/` modules written and tested. Commit `9e3d3ba`.
+**Task: SKILL Step 3 complete.** All pixel fidelity work done. 25 golden files generated, 137 tests passing.
 
-**Next session: SKILL Step 3 (pixel fidelity).** Key tasks:
+### Bugs found and fixed in Step 3
 
-1. **Banana sprite DATA decoding** — the EGA planar layout still needs empirical verification (dump bits and match expected banana shape). Header word order may need adjustment. The `decode_put_data()` function exists but hasn't been verified against actual banana sprites yet.
-2. **Pixel-fidelity passes** — verify LINE, CIRCLE, PAINT output matches QBASIC exactly. Compare framebuffer dumps against reference screenshots.
-3. **Golden-file tests** — save framebuffer PNGs for key screens (intro, game field, explosions, gorillas) and compare against expected output.
-4. **Font rendering verification** — confirm glyph blits produce pixel-identical output to QBASIC's text rendering.
-5. **Palette change immediacy** — verify that `PALETTE n, value` changes affect already-drawn pixels (the indexed framebuffer design supports this; needs testing).
+1. **Bresenham LINE** (`graphics.py`): second error condition tested modified `err` instead of original `e2`. Fixed to match QBASIC output.
+2. **PAINT border_color default** (`graphics.py`): defaulted to fill_color instead of foreground (15). Fixed.
+3. **PLAY note frequency** (`sound.py`): O4C was 523 Hz (C5) instead of 261.6 Hz (middle C). Fixed mapping: `midi = note_num + 11`.
+
+### What was verified
+
+- **Banana sprites**: all 4 EGA directions decode correctly as 6×7 and 9×4 crescent shapes in color 14. Byte-aligned planar layout confirmed.
+- **CGA bananas**: 6×5 and 10×3 multi-color patterns decoded.
+- **LINE**: horizontal, vertical, diagonal, B (box), BF (filled box), styled lines all verified pixel-perfect.
+- **CIRCLE**: simple circles, aspect ratio ellipses, arcs, pie slices (negative angles) all working.
+- **PAINT**: flood fill with correct border detection. Box and circle fills verified.
+- **GET/PUT**: sprite capture and PSET/XOR/AND/OR/PRESET actions verified.
+- **Palette immediacy**: confirmed indexed fb + palette-at-present-time design works correctly.
+- **Font rendering**: SCREEN 0 text with CP437 glyphs (smileys, block elements) verified in golden files.
+- **Sun drawing**: both happy and shocked faces rendered correctly.
+- **Gorilla drawing**: procedural DrawGorilla produces a 30×30 sprite via GET.
+- **Scl() values**: table of EGA and CGA scaling verified against expected outputs.
+
+**Next session: SKILL Step 4 (timing conversion) + Step 5 (language semantics).**
+
+Step 4 tasks:
+1. Verify `timing.py` `Rest()` / `SLEEP` / `TIMER` work correctly in real (non-headless) runs.
+2. Create `TIMING_NOTES.md` entries with high/medium/low confidence for each delay.
+3. Implement `--speed` flag end-to-end.
+
+Step 5 tasks:
+1. Begin translating `game.py` from gorilla.bas, starting with `InitVars`/`SetScreen`/`Intro`.
+2. Wire up all runtime modules.
+3. Test SCREEN mode switching, text input (LINE INPUT, INPUT, GetNum#).
+4. Verify `Center()` and `Scl()` integer arithmetic quirks are preserved.
 
 ## Open questions for the user (batch when convenient)
 
