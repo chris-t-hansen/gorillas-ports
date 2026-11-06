@@ -42,6 +42,32 @@ python game.py --fullscreen        # fullscreen
 python game.py --speed 2.0 --mute  # double speed, no sound
 ```
 
+## Standalone Executable (Linux)
+
+For easy distribution, you can build a standalone executable that doesn't require Python installation:
+
+```bash
+# Build the executable
+./build.sh
+
+# The executable will be in dist/gorillas
+./dist/gorillas
+```
+
+**Requirements for building:**
+- Python 3.10+ with development headers
+- SDL2 development libraries
+- See [DISTRO_GUIDE.md](DISTRO_GUIDE.md) for distro-specific instructions
+
+**Requirements for running:**
+- SDL2 runtime libraries (usually pre-installed or easy to install)
+- Same CPU architecture as the build system (x86_64 or aarch64)
+
+**Cross-distribution compatibility:**
+- Build on the oldest target distribution for maximum compatibility
+- Users on different distros may need to install SDL2 runtime libraries
+- See [DISTRO_GUIDE.md](DISTRO_GUIDE.md) for detailed instructions
+
 ## Controls
 
 | Key | Action |
