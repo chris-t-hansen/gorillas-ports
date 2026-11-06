@@ -936,14 +936,23 @@ def victory_dance(player: int) -> None:
 # ---------------------------------------------------------------------------
 # UpdateScores — BAS L1112-1122
 # ---------------------------------------------------------------------------
-def update_scores(total_wins: list, player_num: int, result: int) -> None:
-    """UpdateScores — BAS L1112-1122."""
-    if result == HITSELF:
-        # Hit self: other player scores
-        other = 3 - player_num
+def update_scores(total_wins: list, tosser: int, hit: int) -> None:
+    """UpdateScores — BAS L1112-1122.
+    
+    NOTE: This function is not currently used. Score logic is inline in play_game().
+    
+    Args:
+        total_wins: List of win counts for each player
+        tosser: Player who threw the banana (1 or 2)
+        hit: Player who was hit (1 or 2)
+    """
+    # If thrower hit themselves, opponent gets the point
+    if hit == tosser:
+        other = 3 - tosser
         total_wins[other] = total_wins[other] + 1
     else:
-        total_wins[player_num] = total_wins[player_num] + 1
+        # Thrower hit opponent, thrower gets the point
+        total_wins[tosser] = total_wins[tosser] + 1
 
 
 # ---------------------------------------------------------------------------
@@ -1124,10 +1133,17 @@ def play_game(player1: str, player2: str, num_games: int) -> None:
                 scr.present()
 
             if hit:
-                update_scores(total_wins, tosser, hit)
-                scr.present()
-                if hit != HITSELF:
+                # hit is the player who was hit (1 or 2)
+                # If thrower hit themselves, opponent gets the point
+                if hit == tosser:
+                    other = 3 - tosser
+                    total_wins[other] = total_wins[other] + 1
+                    victory_dance(other)
+                else:
+                    # Thrower hit opponent, thrower gets the point
+                    total_wins[tosser] = total_wins[tosser] + 1
                     victory_dance(tosser)
+                scr.present()
 
         timing.sleep(1)
 
