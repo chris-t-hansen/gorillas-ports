@@ -241,18 +241,26 @@ def init(scale: int = 0, fullscreen: bool = False, mute: bool = False, speed: fl
     screen(0)
 
 
-def _create_window(display_w: int, display_h: int):
-    """Create or resize the pygame window."""
+def _create_window(display_w: int, display_h: int, force_recreate: bool = False):
+    """Create or resize the pygame window.
+    
+    Args:
+        display_w: Desired window width
+        display_h: Desired window height
+        force_recreate: If True, always recreate the window even if size matches
+    """
     global _window, _render_surf
 
     flags = 0
     if _fullscreen:
         flags |= pygame.FULLSCREEN
 
-    if _window is not None:
+    if _window is not None and not force_recreate:
         # Check if current window matches desired size.
         cur_w, cur_h = _window.get_size()
         if cur_w == display_w and cur_h == display_h:
+            # Even if size matches, recreate render surface for mode switch
+            _render_surf = pygame.Surface((_fb_w, _fb_h))
             return  # already correct size
 
     _window = pygame.display.set_mode((display_w, display_h), flags)
@@ -325,7 +333,7 @@ def screen(mode: int) -> None:
 
     # Create/resize window.
     display_w, display_h = _compute_display_size(_fb_w, _fb_h)
-    _create_window(display_w, display_h)
+    _create_window(display_w, display_h, force_recreate=True)
 
 
 # ---------------------------------------------------------------------------
