@@ -263,6 +263,11 @@ def _create_window(display_w: int, display_h: int, force_recreate: bool = False)
             _render_surf = pygame.Surface((_fb_w, _fb_h))
             return  # already correct size
 
+    # Force window recreation by quitting and reinitializing display
+    if _window is not None:
+        pygame.display.quit()
+        pygame.display.init()
+    
     _window = pygame.display.set_mode((display_w, display_h), flags)
     _render_surf = pygame.Surface((_fb_w, _fb_h))
 
