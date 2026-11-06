@@ -102,7 +102,13 @@ def _play_sample(samples: np.ndarray) -> None:
         # Mixer not initialized
         return
     try:
-        sound = pygame.sndarray.make_sound(samples)
+        # Convert mono to stereo if needed
+        if samples.ndim == 1:
+            # Duplicate mono samples for both stereo channels
+            stereo = np.column_stack((samples, samples))
+            sound = pygame.sndarray.make_sound(stereo)
+        else:
+            sound = pygame.sndarray.make_sound(samples)
         sound.play()
         # Wait for completion.
         while pygame.mixer.get_busy():
