@@ -42,31 +42,54 @@ python game.py --fullscreen        # fullscreen
 python game.py --speed 2.0 --mute  # double speed, no sound
 ```
 
-## Standalone Executable (Linux)
+## Standalone Executable (All Platforms)
 
 For easy distribution, you can build a standalone executable that doesn't require Python installation:
 
-```bash
-# Build the executable
-./build.sh
+### Quick Build
 
-# The executable will be in dist/gorillas
-./dist/gorillas
+**Windows:**
+```cmd
+build.bat
 ```
 
-**Requirements for building:**
+**macOS/Linux/BSD:**
+```bash
+./build.sh
+```
+
+**All platforms (PowerShell):**
+```powershell
+pwsh build.ps1
+```
+
+### Output
+
+| Platform | Executable | Self-Contained? |
+|----------|-----------|-----------------|
+| Windows 10/11 | `dist/gorillas.exe` | ✅ Yes (includes SDL2) |
+| macOS | `dist/gorillas-macos` | ❌ Needs SDL2 via Homebrew |
+| Linux | `dist/gorillas-linux` | ❌ Needs SDL2 packages |
+| FreeBSD/OpenBSD/NetBSD | `dist/gorillas-{bsd}` | ❌ Needs SDL2 packages |
+
+### Requirements
+
+**For building:**
 - Python 3.10+ with development headers
-- SDL2 development libraries
-- See [DISTRO_GUIDE.md](DISTRO_GUIDE.md) for distro-specific instructions
+- SDL2 development libraries (except Windows)
+- See [BUILD_GUIDE.md](BUILD_GUIDE.md) for platform-specific instructions
 
-**Requirements for running:**
-- SDL2 runtime libraries (usually pre-installed or easy to install)
-- Same CPU architecture as the build system (x86_64 or aarch64)
+**For running:**
+- Windows: Nothing! Just run the `.exe`
+- macOS/Linux/BSD: SDL2 runtime libraries (usually pre-installed or easy to install)
 
-**Cross-distribution compatibility:**
-- Build on the oldest target distribution for maximum compatibility
-- Users on different distros may need to install SDL2 runtime libraries
-- See [DISTRO_GUIDE.md](DISTRO_GUIDE.md) for detailed instructions
+### Cross-platform compatibility
+
+- Build on each target platform separately
+- Windows executables are self-contained (pygame-ce bundles SDL2 DLLs)
+- macOS/Linux/BSD executables need SDL2 installed on the target system
+- Build on the oldest target OS version for maximum compatibility
+- See [BUILD_GUIDE.md](BUILD_GUIDE.md) for detailed instructions and troubleshooting
 
 ## Controls
 
