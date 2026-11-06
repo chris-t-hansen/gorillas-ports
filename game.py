@@ -1068,6 +1068,10 @@ def gorilla_intro(player1: str, player2: str) -> None:
             sound.play("T160O0L32EFGEFDC")
             rest(0.1)
 
+    # Clear screen before returning to game
+    scr.cls()
+    scr.present()
+
 
 # ---------------------------------------------------------------------------
 # PlayGame — BAS L843-888

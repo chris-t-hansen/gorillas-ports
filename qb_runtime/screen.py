@@ -278,6 +278,7 @@ def screen(mode: int) -> None:
     if mode not in _MODE_GEOMETRY:
         raise ValueError(f"Unsupported screen mode: {mode}")
 
+    # Always reinitialize, even if mode hasn't changed (QBASIC SCREEN clears everything)
     _mode = mode
     _fb_w, _fb_h, _cell_w, _cell_h, _cols, _rows = _MODE_GEOMETRY[mode]
 
