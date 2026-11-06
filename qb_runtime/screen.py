@@ -277,15 +277,26 @@ def _compute_display_size(fb_w: int, fb_h: int):
 
     For SCREEN 9 (640x350): display at 640x480 (4:3 with PAR 1:1.371).
     For SCREEN 1 (320x200): display at 320x240 (4:3 with PAR 1:1.2).
+    For SCREEN 0 (640x350): display at 640x480.
+    
+    CGA mode gets an extra 2x scale factor since it has half the resolution
+    of EGA, so they fill the same physical area on screen (matching real
+    CRT behavior where both modes filled the entire monitor).
+    
     Then scale by _scale factor.
     """
     # Compute 4:3 display height: width * 3 / 4
     display_w = fb_w
     display_h = int(fb_w * 3 / 4)
 
+    # CGA (SCREEN 1) has half the resolution of EGA/text modes.
+    # On a real CRT, both modes filled the same physical screen.
+    # Apply an extra 2x scale to CGA to match physical size.
+    cga_multiplier = 2 if _mode == 1 else 1
+
     if _scale > 0:
-        display_w *= _scale
-        display_h *= _scale
+        display_w *= _scale * cga_multiplier
+        display_h *= _scale * cga_multiplier
     else:
         # Auto-fit: find the largest integer scale that fits the display.
         info = pygame.display.Info()
